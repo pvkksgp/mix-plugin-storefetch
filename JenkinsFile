@@ -7,18 +7,18 @@ pipeline {
         maven 'M3'
     } 
     stages{        
-        stage('Build') {
+        stage('Package') {
             steps {
-                echo "Starting Build..."
-                sh "mvn clean verify -Dbuild.version=${env.BUILD_VERSION}"
+                echo "Started Packaging..."
+                sh "mvn clean package -Dbuild.version=${env.BUILD_VERSION}"
                 echo "Build: ${currentBuild.currentResult}"
             }
             post {
                 success {
-                    echo "...Build Succeeded for ${env.BUILD_VERSION}: ${currentBuild.currentResult}"
+                    echo "...Packaging Succeeded for ${env.BUILD_VERSION}: ${currentBuild.currentResult}"
                 } 
                 unsuccessful {
-                    echo "...Build Failed for ${env.BUILD_VERSION}: ${currentBuild.currentResult}"
+                    echo "...Packaging Failed for ${env.BUILD_VERSION}: ${currentBuild.currentResult}"
                 }
             }
         }
@@ -26,19 +26,19 @@ pipeline {
         stage('Upload Artifact') {
             steps {
                 script {
-                    echo "Uploading Artifact..."
+                    echo "Uploading Package..."
                     configFileProvider([configFile(fileId: '12cfbfe5-64a5-4489-a09d-8d382482b16e', targetLocation: 'settings.xml', variable: 'MAVEN_SETTINGS_XML')]) {
                         sh "mvn -U --batch-mode -Dbuild.version=${env.BUILD_VERSION} -s $MAVEN_SETTINGS_XML clean package install deploy"
                     }
-                    echo "Artifact Uploaded: ${currentBuild.currentResult}"
+                    echo "Package Uploaded: ${currentBuild.currentResult}"
                 }
             }
             post {
                 success {
-                    echo "...Artifact Upload Succeeded for ${env.BUILD_VERSION}: ${currentBuild.currentResult}"
+                    echo "...Pacage Upload Succeeded for ${env.BUILD_VERSION}: ${currentBuild.currentResult}"
                 } 
                 unsuccessful {
-                    echo "...Artifact Upload Failed for ${env.BUILD_VERSION}: ${currentBuild.currentResult}"
+                    echo "...Package Upload Failed for ${env.BUILD_VERSION}: ${currentBuild.currentResult}"
                 }
             }
         }                  
