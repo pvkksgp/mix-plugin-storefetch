@@ -4,7 +4,7 @@
 
 	<groupId>edu.monash.mix</groupId>
 	<artifactId>mix-plugin-storefetch</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>${build.version}-RELEASE</version>
 	<packaging>mule-application</packaging>
 
 	<name>mix-plugin-storefetch</name>
