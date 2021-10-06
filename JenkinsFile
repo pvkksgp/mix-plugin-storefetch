@@ -28,7 +28,7 @@ pipeline {
                 script {
                     echo "Uploading Artifact..."
                     configFileProvider([configFile(fileId: '12cfbfe5-64a5-4489-a09d-8d382482b16e', targetLocation: 'settings.xml', variable: 'MAVEN_SETTINGS_XML')]) {
-                        sh 'mvn -U --batch-mode -s $MAVEN_SETTINGS_XML clean package install deploy -Dbuild.version=${env.BUILD_VERSION}'
+                        sh 'mvn -U --batch-mode -Dbuild.version=${env.BUILD_VERSION} -s $MAVEN_SETTINGS_XML clean package install deploy'
                     }
                     echo "Artifact Uploaded: ${currentBuild.currentResult}"
                 }
