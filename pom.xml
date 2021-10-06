@@ -77,5 +77,11 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
+	<distributionManagement>
+		<repository>
+			<id>lib-mule-releases-local</id>
+			<url>http://localhost:8081/repository/lib-mule-releases-local/</url>
+		</repository>
+	</distributionManagement>
 
 </project>
