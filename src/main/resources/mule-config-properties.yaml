@@ -1,0 +1,25 @@
+mule.env: "DEV"
+
+#JSON Logger configuration    
+json.logger.application:
+  name: "mix-plugin-pubsub"
+  version: "v1"
+  logging.type: "INFO"  
+
+aws:
+  elasticache:
+    reconnect.attempts: "50"
+    reconnect.frequency: "2000"
+    connection.timeout: "20000"
+    ttl: "1209600000" #14 days TTL
+    maxIdle: "12"
+    maxTotal: "30"
+    minIdle: "8"
+    minEvictableIdleTimeMillis: "30000"
+    softMinEvictableIdleTimeMillis: "-1"
+    maxWaitMillis: "30000"
+    numTestsPerEvictionRun: "3"
+    timeBetweenEvictionRunsMillis: "50000"
+  
+
+  

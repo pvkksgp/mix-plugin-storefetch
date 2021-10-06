@@ -1,0 +1,26 @@
+{
+  "configs": [
+    "mix-plugin-storefetch.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "edu.monash.mix:mix-plugin-storefetch:1.0.0-SNAPSHOT",
+  "minMuleVersion": "4.3.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [],
+      "exportedResources": [
+        "log4j2.xml",
+        "application-types.xml",
+        "mule-config-properties.yaml",
+        "mix-plugin-storefetch.xml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}
