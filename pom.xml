@@ -6,7 +6,6 @@
 	<artifactId>mix-plugin-storefetch</artifactId>
 	<version>${build.version}-RELEASE</version>
 	<packaging>mule-application</packaging>
-	<classifier>mule-plugin</classifier>
 	<name>mix-plugin-storefetch</name>
 
 	<properties>
