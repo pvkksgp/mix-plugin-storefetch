@@ -1,24 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:redis="http://www.mulesoft.org/schema/mule/redis" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" 
-xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:redis="http://www.mulesoft.org/schema/mule/redis" 
+xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
-http://www.mulesoft.org/schema/mule/redis http://www.mulesoft.org/schema/mule/redis/current/mule-redis.xsd">
-	<redis:redis-config name="AWS_ElastiCache_Connection_Clustered" doc:name="Redis Redis" doc:id="f107357c-b091-4447-b67f-18aa9851d974" >
+http://www.mulesoft.org/schema/mule/redis http://www.mulesoft.org/schema/mule/redis/current/mule-redis.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">	
+	<redis:redis-config name="AWS_ElastiCache_Connection_Clustered" doc:name="Redis Redis" doc:id="23102478-072c-4f22-ad90-797065f07ca1" >
 		<redis:clustered-connection clusterHosts="${aws.elasticache.url.list}" entryTTL="${aws.elasticache.ttl}" maxTotal="${aws.elasticache.maxTotal}" maxIdle="${aws.elasticache.maxIdle}" minIdle="${aws.elasticache.minIdle}" maxWaitMillis="${aws.elasticache.maxWaitMillis}" minEvictableIdleTimeMillis="${aws.elasticache.minEvictableIdleTimeMillis}" softMinEvictableIdleTimeMillis="${aws.elasticache.softMinEvictableIdleTimeMillis}" numTestsPerEvictionRun="${aws.elasticache.numTestsPerEvictionRun}" timeBetweenEvictionRunsMillis="${aws.elasticache.timeBetweenEvictionRunsMillis}" connectionTimeout="${aws.elasticache.connection.timeout}" password='#[if("${secure::aws.elasticache.password}" != null and "${secure::aws.elasticache.password}" != "") "${secure::aws.elasticache.password}" else null]'>
 			<reconnection>
 				<reconnect frequency="${aws.elasticache.reconnect.frequency}" count="${aws.elasticache.reconnect.attempts}" />
 			</reconnection>
 		</redis:clustered-connection>
 	</redis:redis-config>
-	<redis:redis-config name="AWS_ElastiCache_Connection_Standalone" doc:name="Redis Redis" doc:id="14b922d5-2874-466d-a5a2-410348039293" >
-		<redis:nonclustered-connection host='#[splitBy(splitBy("${aws.elasticache.url.list}", ",")[0], ":")[0]]' port='#[splitBy(splitBy("${aws.elasticache.url.list}", ",")[0], ":")[1]]' password='#[if("${secure::aws.elasticache.password}" != null and "${secure::aws.elasticache.password}" != "") "${secure::aws.elasticache.password}" else null]' entryTTL="${aws.elasticache.ttl}" />
+	<redis:redis-config name="AWS_ElastiCache_Connection_Standalone" doc:name="Redis Redis" doc:id="d148f944-5bd4-48f8-92b7-49de9dff0f42" >
+		<redis:nonclustered-connection host='#[splitBy(splitBy("${aws.elasticache.url.list}", ",")[0], ":")[0]]' port='#[splitBy(splitBy("${aws.elasticache.url.list}", ",")[0], ":")[1]]' password='#[if("${secure::aws.elasticache.password}" != null and "${secure::aws.elasticache.password}" != "") "${secure::aws.elasticache.password}" else null]' entryTTL="${aws.elasticache.ttl}"  maxTotal="${aws.elasticache.maxTotal}" maxIdle="${aws.elasticache.maxIdle}" minIdle="${aws.elasticache.minIdle}" maxWaitMillis="${aws.elasticache.maxWaitMillis}" minEvictableIdleTimeMillis="${aws.elasticache.minEvictableIdleTimeMillis}" softMinEvictableIdleTimeMillis="${aws.elasticache.softMinEvictableIdleTimeMillis}" numTestsPerEvictionRun="${aws.elasticache.numTestsPerEvictionRun}" timeBetweenEvictionRunsMillis="${aws.elasticache.timeBetweenEvictionRunsMillis}" connectionTimeout="${aws.elasticache.connection.timeout}">
+			<reconnection>
+				<reconnect frequency="${aws.elasticache.reconnect.frequency}" count="${aws.elasticache.reconnect.attempts}" />
+			</reconnection>
+		</redis:nonclustered-connection>
 	</redis:redis-config>
-	<configuration-properties doc:name="Configuration properties" doc:id="a25b7a1f-245f-441d-9687-13f38e5a1747" file="mule-config-properties.yaml" />
+	<json-logger:config name="JSON_Logger_Config_EventStore" doc:name="JSON Logger Config" doc:id="50f72e8d-2015-4a3a-8399-d726e03eb860" environment="${mule.env}" contentFieldsDataMasking="client_secret,hello" disabledFields="content"/>
+	<configuration-properties doc:name="Configuration properties" doc:id="672ae40c-9101-483b-916b-d137ce206a69" file="mule-config-properties.yaml" />
 	<flow name="store-event" doc:id="7b3008c1-a729-4c1c-91de-14169e33b007" >
+		<json-logger:logger doc:name="Log Incoming Event Payload" doc:id="c75bc795-03dc-4af5-ae87-1a4a9f2755da" config-ref="JSON_Logger_Config_EventStore" message='#["MIX-PLUGIN-STORE-FETCH:STORE-EVENT:IN: eventType:" ++ (payload.metadata.eventType default "") ++ ", eventId: " ++ (payload.metadata.eventId default "")]' category="#[p('json.logger.application.name') ++ &quot;:mix-plugin-storefetch:store-event.start&quot;]">
+		</json-logger:logger>
 		<validation:is-not-blank-string doc:name="Validate Event Type" doc:id="f4e4ed32-de2e-4a63-bf64-42fe1bbd292b" value="#[payload.metadata.eventType]" message="eventType is missing in the payload metadata" />
-		<ee:transform doc:name="Payload to JSON" doc:id="8a0457b6-2ef0-4c3e-9d24-bb2f2de2b8be" >
+		<ee:transform doc:name="Transform Payload to JSON" doc:id="5f66d158-9c48-4381-89e7-e1058095483f" >
 			<ee:message >
 			</ee:message>
 			<ee:variables >
@@ -48,31 +56,31 @@ else "AWS_ElastiCache_Connection_Standalone"]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 		<choice doc:name="Choice" doc:id="58d1e4c9-b7b6-412e-b011-568f7379f433" >
-			<when expression='#["${aws.elasticache.clustered}" == "true"]'>
-				<redis:set-in-hash doc:name="Store Event" doc:id="2060b000-07a9-4f04-8693-0515786f98ca" key="#[payload.key]" field="#[payload.field]" ifNotExists="true" target="eventStoreResponse" config-ref="AWS_ElastiCache_Connection_Clustered">
-			<error-mapping sourceType="REDIS:CONNECTIVITY" targetType="EVENT_STORE:CONNECTIVITY" />
-			<error-mapping sourceType="REDIS:INVALID_CONFIGURATION" targetType="EVENT_STORE:INVALID_CONFIGURATION" />
-			<error-mapping sourceType="REDIS:INVALID_REQUEST_DATA" targetType="EVENT_STORE:INVALID_REQUEST_DATA" />
-			<error-mapping sourceType="REDIS:INVALID_STRUCTURE_FOR_INPUT_DATA" targetType="EVENT_STORE:INVALID_STRUCTURE_FOR_INPUT_DATA" />
-			<error-mapping sourceType="REDIS:RETRY_EXHAUSTED" targetType="EVENT_STORE:RETRY_EXHAUSTED" />
-			<error-mapping sourceType="REDIS:UNABLE_TO_UNSUBSCRIBE" targetType="EVENT_STORE:UNABLE_TO_UNSUBSCRIBE" />
-			<error-mapping sourceType="REDIS:UNKNOWN" targetType="EVENT_STORE:UNKNOWN" />
-			<reconnect frequency="${aws.elasticache.reconnect.frequency}" count="${aws.elasticache.reconnect.attempts}" />
-			<redis:value><![CDATA[#[payload.value]]]></redis:value>
-		</redis:set-in-hash>
+			<when expression='#[p("aws.elasticache.clustered") == "true"]'>
+				<redis:set doc:name="Store Event" doc:id="634574ed-9fff-42be-a45b-722857656ae9" config-ref="AWS_ElastiCache_Connection_Clustered" key='#[payload.key ++ "_" ++ payload.field]' target="eventStoreResponse" expire="${aws.elasticache.ttl}">
+					<error-mapping sourceType="REDIS:CONNECTIVITY" targetType="EVENT_STORE:CONNECTIVITY" />
+					<error-mapping sourceType="REDIS:INVALID_CONFIGURATION" targetType="EVENT_STORE:INVALID_CONFIGURATION" />
+					<error-mapping sourceType="REDIS:INVALID_REQUEST_DATA" targetType="EVENT_STORE:INVALID_REQUEST_DATA" />
+					<error-mapping sourceType="REDIS:INVALID_STRUCTURE_FOR_INPUT_DATA" targetType="EVENT_STORE:INVALID_STRUCTURE_FOR_INPUT_DATA" />
+					<error-mapping sourceType="REDIS:RETRY_EXHAUSTED" targetType="EVENT_STORE:RETRY_EXHAUSTED" />
+					<error-mapping sourceType="REDIS:UNABLE_TO_UNSUBSCRIBE" targetType="EVENT_STORE:UNABLE_TO_UNSUBSCRIBE" />
+					<error-mapping sourceType="REDIS:UNKNOWN" targetType="EVENT_STORE:UNKNOWN" />
+					<reconnect frequency="${aws.elasticache.reconnect.frequency}" count="${aws.elasticache.reconnect.attempts}"/>
+					<redis:value ><![CDATA[#[payload.value]]]></redis:value>
+				</redis:set>
 			</when>
 			<otherwise >
-				<redis:set-in-hash doc:name="Store Event" doc:id="9b1a09c6-5f23-4f69-b28d-ae02d8ef54bc" key="#[payload.key]" field="#[payload.field]" ifNotExists="true" target="eventStoreResponse" config-ref="AWS_ElastiCache_Connection_Standalone">
-			<error-mapping sourceType="REDIS:CONNECTIVITY" targetType="EVENT_STORE:CONNECTIVITY" />
-			<error-mapping sourceType="REDIS:INVALID_CONFIGURATION" targetType="EVENT_STORE:INVALID_CONFIGURATION" />
-			<error-mapping sourceType="REDIS:INVALID_REQUEST_DATA" targetType="EVENT_STORE:INVALID_REQUEST_DATA" />
-			<error-mapping sourceType="REDIS:INVALID_STRUCTURE_FOR_INPUT_DATA" targetType="EVENT_STORE:INVALID_STRUCTURE_FOR_INPUT_DATA" />
-			<error-mapping sourceType="REDIS:RETRY_EXHAUSTED" targetType="EVENT_STORE:RETRY_EXHAUSTED" />
-			<error-mapping sourceType="REDIS:UNABLE_TO_UNSUBSCRIBE" targetType="EVENT_STORE:UNABLE_TO_UNSUBSCRIBE" />
-			<error-mapping sourceType="REDIS:UNKNOWN" targetType="EVENT_STORE:UNKNOWN" />
-			<reconnect frequency="${aws.elasticache.reconnect.frequency}" count="${aws.elasticache.reconnect.attempts}" />
-			<redis:value><![CDATA[#[payload.value]]]></redis:value>
-		</redis:set-in-hash>
+				<redis:set doc:name="Store Event" doc:id="076f26f1-3003-413a-9627-dc25dd6d30cc" config-ref="AWS_ElastiCache_Connection_Standalone" key='#[payload.key ++ "_" ++ payload.field]' target="eventStoreResponse" expire="${aws.elasticache.ttl}">
+					<error-mapping sourceType="REDIS:CONNECTIVITY" targetType="EVENT_STORE:CONNECTIVITY" />
+					<error-mapping sourceType="REDIS:INVALID_CONFIGURATION" targetType="EVENT_STORE:INVALID_CONFIGURATION" />
+					<error-mapping sourceType="REDIS:INVALID_REQUEST_DATA" targetType="EVENT_STORE:INVALID_REQUEST_DATA" />
+					<error-mapping sourceType="REDIS:INVALID_STRUCTURE_FOR_INPUT_DATA" targetType="EVENT_STORE:INVALID_STRUCTURE_FOR_INPUT_DATA" />
+					<error-mapping sourceType="REDIS:RETRY_EXHAUSTED" targetType="EVENT_STORE:RETRY_EXHAUSTED" />
+					<error-mapping sourceType="REDIS:UNABLE_TO_UNSUBSCRIBE" targetType="EVENT_STORE:UNABLE_TO_UNSUBSCRIBE" />
+					<error-mapping sourceType="REDIS:UNKNOWN" targetType="EVENT_STORE:UNKNOWN" />
+					<reconnect frequency="${aws.elasticache.reconnect.frequency}" count="${aws.elasticache.reconnect.attempts}"/>
+					<redis:value ><![CDATA[#[payload.value]]]></redis:value>
+				</redis:set>
 			</otherwise>
 		</choice>
 		<ee:transform doc:name="Set Outgoing Payload" doc:id="f227df2e-21f5-45dd-a812-0a09bfcc5b97" >
@@ -88,8 +96,13 @@ output application/java
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<json-logger:logger doc:name="Log Outgoing Payload" doc:id="97c972f1-75e0-49ff-a83a-8ef17e3a8f73" config-ref="JSON_Logger_Config_EventStore" tracePoint="END" category="#[p('json.logger.application.name') ++ &quot;:mix-plugin-storefetch:store-event.end&quot;]" message='#["MIX-PLUGIN-STORE-FETCH:STORE-EVENT:OUT: eventType:" ++ (payload.metadata.eventType default "") ++ ", eventId: " ++ (payload.metadata.eventId default "")]'>
+		</json-logger:logger>
+		<error-handler ref="sync-error-handler" />
 	</flow>
 	<flow name="fetch-event" doc:id="ea1e28c8-570b-49ae-89dc-81599a8f0ead" >
+		<json-logger:logger doc:name="Log Incoming Event Payload" doc:id="6ea24c2c-8ea3-47cd-9ccb-91138d8fc1df" config-ref="JSON_Logger_Config_EventStore" message='#["MIX-PLUGIN-STORE-FETCH:FETCH-EVENT:IN: eventType:" ++ (payload.metadata.eventType default "") ++ ", eventId: " ++ (payload.metadata.eventId default "")]' category="#[p('json.logger.application.name') ++ &quot;:mix-plugin-storefetch:fetch-event.start&quot;]">
+		</json-logger:logger>
 		<validation:all doc:name="All" doc:id="b0a135a3-d7f4-482e-80d2-416621fc32ab" >
 			<validation:is-not-blank-string doc:name="Validate Event Type" doc:id="cc8eced6-00d6-4f03-9531-76a93fc67f35" value="#[payload.metadata.eventType]" message="eventType is missing in the payload metadata"/>
 			<validation:is-not-blank-string doc:name="Validate Event ID" doc:id="5e0bc535-1806-4ebd-a278-558fee98458e" value="#[payload.metadata.eventId]" message="eventId is missing in the payload metadata"/>
@@ -113,29 +126,29 @@ else "AWS_ElastiCache_Connection_Standalone"]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 		<choice doc:name="Choice" doc:id="b27d5910-c8ca-48c0-84d8-8ca0cba3058d" >
-			<when expression='#["${aws.elasticache.clustered}" == "true"]'>
-				<redis:get-from-hash doc:name="Fetch Event" doc:id="d0c105f0-5ff1-4155-9b7e-54430f9c8a19" key="#[payload.key]" field="#[payload.field]" config-ref="AWS_ElastiCache_Connection_Clustered">
-		<error-mapping sourceType="REDIS:CONNECTIVITY" targetType="EVENT_STORE:CONNECTIVITY" />
-			<error-mapping sourceType="REDIS:INVALID_CONFIGURATION" targetType="EVENT_STORE:INVALID_CONFIGURATION" />
-			<error-mapping sourceType="REDIS:INVALID_REQUEST_DATA" targetType="EVENT_STORE:INVALID_REQUEST_DATA" />
-			<error-mapping sourceType="REDIS:INVALID_STRUCTURE_FOR_INPUT_DATA" targetType="EVENT_STORE:INVALID_STRUCTURE_FOR_INPUT_DATA" />
-			<error-mapping sourceType="REDIS:RETRY_EXHAUSTED" targetType="EVENT_STORE:RETRY_EXHAUSTED" />
-			<error-mapping sourceType="REDIS:UNABLE_TO_UNSUBSCRIBE" targetType="EVENT_STORE:UNABLE_TO_UNSUBSCRIBE" />
-			<error-mapping sourceType="REDIS:UNKNOWN" targetType="EVENT_STORE:UNKNOWN" />
-			<reconnect frequency="${aws.elasticache.reconnect.frequency}" count="${aws.elasticache.reconnect.attempts}" />
-		</redis:get-from-hash>
+			<when expression='#[p("aws.elasticache.clustered") == "true"]'>
+				<redis:get doc:name="Fetch Event" doc:id="de6f4354-73b4-43b7-80f3-c68b1237641c" config-ref="AWS_ElastiCache_Connection_Clustered" key='#[payload.key ++ "_" ++ payload.field]'>
+					<error-mapping sourceType="REDIS:CONNECTIVITY" targetType="EVENT_STORE:CONNECTIVITY" />
+					<error-mapping sourceType="REDIS:INVALID_CONFIGURATION" targetType="EVENT_STORE:INVALID_CONFIGURATION" />
+					<error-mapping sourceType="REDIS:INVALID_REQUEST_DATA" targetType="EVENT_STORE:INVALID_REQUEST_DATA" />
+					<error-mapping sourceType="REDIS:INVALID_STRUCTURE_FOR_INPUT_DATA" targetType="EVENT_STORE:INVALID_STRUCTURE_FOR_INPUT_DATA" />
+					<error-mapping sourceType="REDIS:RETRY_EXHAUSTED" targetType="EVENT_STORE:RETRY_EXHAUSTED" />
+					<error-mapping sourceType="REDIS:UNABLE_TO_UNSUBSCRIBE" targetType="EVENT_STORE:UNABLE_TO_UNSUBSCRIBE" />
+					<error-mapping sourceType="REDIS:UNKNOWN" targetType="EVENT_STORE:UNKNOWN" />
+					<reconnect frequency="${aws.elasticache.reconnect.frequency}" count="${aws.elasticache.reconnect.attempts}"/>
+				</redis:get>
 			</when>
 			<otherwise >
-				<redis:get-from-hash doc:name="Fetch Event" doc:id="b5e309f3-a9a0-4d82-be74-3608efb7eeb9" key="#[payload.key]" field="#[payload.field]" config-ref="AWS_ElastiCache_Connection_Standalone">
-		<error-mapping sourceType="REDIS:CONNECTIVITY" targetType="EVENT_STORE:CONNECTIVITY" />
-			<error-mapping sourceType="REDIS:INVALID_CONFIGURATION" targetType="EVENT_STORE:INVALID_CONFIGURATION" />
-			<error-mapping sourceType="REDIS:INVALID_REQUEST_DATA" targetType="EVENT_STORE:INVALID_REQUEST_DATA" />
-			<error-mapping sourceType="REDIS:INVALID_STRUCTURE_FOR_INPUT_DATA" targetType="EVENT_STORE:INVALID_STRUCTURE_FOR_INPUT_DATA" />
-			<error-mapping sourceType="REDIS:RETRY_EXHAUSTED" targetType="EVENT_STORE:RETRY_EXHAUSTED" />
-			<error-mapping sourceType="REDIS:UNABLE_TO_UNSUBSCRIBE" targetType="EVENT_STORE:UNABLE_TO_UNSUBSCRIBE" />
-			<error-mapping sourceType="REDIS:UNKNOWN" targetType="EVENT_STORE:UNKNOWN" />
-			<reconnect frequency="${aws.elasticache.reconnect.frequency}" count="${aws.elasticache.reconnect.attempts}" />
-		</redis:get-from-hash>
+				<redis:get doc:name="Fetch Event" doc:id="2dbbedaa-51b5-44a9-abbf-d74059a4db9d" config-ref="AWS_ElastiCache_Connection_Standalone" key='#[payload.key ++ "_" ++ payload.field]'>
+					<error-mapping sourceType="REDIS:CONNECTIVITY" targetType="EVENT_STORE:CONNECTIVITY" />
+					<error-mapping sourceType="REDIS:INVALID_CONFIGURATION" targetType="EVENT_STORE:INVALID_CONFIGURATION" />
+					<error-mapping sourceType="REDIS:INVALID_REQUEST_DATA" targetType="EVENT_STORE:INVALID_REQUEST_DATA" />
+					<error-mapping sourceType="REDIS:INVALID_STRUCTURE_FOR_INPUT_DATA" targetType="EVENT_STORE:INVALID_STRUCTURE_FOR_INPUT_DATA" />
+					<error-mapping sourceType="REDIS:RETRY_EXHAUSTED" targetType="EVENT_STORE:RETRY_EXHAUSTED" />
+					<error-mapping sourceType="REDIS:UNABLE_TO_UNSUBSCRIBE" targetType="EVENT_STORE:UNABLE_TO_UNSUBSCRIBE" />
+					<error-mapping sourceType="REDIS:UNKNOWN" targetType="EVENT_STORE:UNKNOWN" />
+					<reconnect frequency="${aws.elasticache.reconnect.frequency}" count="${aws.elasticache.reconnect.attempts}"/>
+				</redis:get>
 			</otherwise>
 		</choice>
 		<ee:transform doc:name="Set Outgoing Payload" doc:id="cfa0274e-7bde-403e-a25a-25fa9036a0d7" >
@@ -147,5 +160,14 @@ if(payload != null) read(payload,"application/json")
 else payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<json-logger:logger doc:name="Log Outgoing Payload" doc:id="06808796-24d4-451a-8867-35a48b180d60" config-ref="JSON_Logger_Config_EventStore" message='#["MIX-PLUGIN-STORE-FETCH:FETCH-EVENT:OUT: eventType:" ++ (payload.metadata.eventType default "") ++ ", eventId: " ++ (payload.metadata.eventId default "")]' tracePoint="END" category="#[p('json.logger.application.name') ++ &quot;:mix-plugin-storefetch:fetch-event.end&quot;]">
+		</json-logger:logger>
+		<error-handler ref="sync-error-handler" />
 	</flow>
+	<error-handler name="sync-error-handler" doc:id="ddc903fd-1c53-4969-bec3-5a40b9751357" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="7a1a0a09-7faf-4583-86cb-34dc6cb8f458" type="ANY">
+		<json-logger:logger doc:name="Log Error" doc:id="0f188a2f-776d-40bb-b3bb-a8247fa7d62d" config-ref="JSON_Logger_Config_EventStore" message="#[&quot;MIX-PLUGIN-STORE-FETCH: &quot; ++ error.errorType.asString ++ ' - ' ++ error.description]" tracePoint="EXCEPTION" category="#[p('json.logger.application.name') ++ &quot;:mix-plugin-storefetch.error&quot;]" priority="ERROR">
+			</json-logger:logger>
+		</on-error-propagate>
+	</error-handler>
 </mule>

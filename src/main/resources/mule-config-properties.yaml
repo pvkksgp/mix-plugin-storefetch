@@ -11,7 +11,7 @@ aws:
     reconnect.attempts: "50"
     reconnect.frequency: "2000"
     connection.timeout: "20000"
-    ttl: "1209600000" #14 days TTL
+    ttl: "1209600" # 1209600 seconds = 14 days
     maxIdle: "12"
     maxTotal: "30"
     minIdle: "8"
@@ -19,7 +19,4 @@ aws:
     softMinEvictableIdleTimeMillis: "-1"
     maxWaitMillis: "30000"
     numTestsPerEvictionRun: "3"
-    timeBetweenEvictionRunsMillis: "50000"
-  
-
-  
+    timeBetweenEvictionRunsMillis: "50000" 
